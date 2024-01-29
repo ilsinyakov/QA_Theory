@@ -39,10 +39,12 @@
 * Нет никакой разницы (в плане привилегий) между членством в первичной и вторичной группах.
 
 `egrep ${USER} /etc/group`  
-```wheel:x:10:feodor
+```
+wheel:x:10:feodor
 users:x:100:feodor,[ ... a lot of users here ... ]
 feodor:x:1000:
-qa:x:1001:feodor,user1,user2```  
+qa:x:1001:feodor,user1,user2
+```  
 * Название группы
 * Всегда 'x'
 * Идентификатор группы, называемый "GID", должен быть уникальным
