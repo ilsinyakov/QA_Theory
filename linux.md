@@ -63,6 +63,8 @@ qa:x:1001:feodor,user1,user2
 
 `groups` - имена групп
 
+`last` - лог перезагрузок и авторизации в системе.
+
 ### Повышение привилегий
 
 #### "su": Переключить пользователя
@@ -413,6 +415,12 @@ systemctl restart название_службы
 * **дисковые устройства** (внутренние и внешние, такие как подключённые USB-устройства флэш-памяти) — используйте команду `lsblk`;
 * **устройства PCI**, такие как сетевые интерфейсы, контроллеры Wi-Fi, видеокарты — используйте команду `lspci`;
 * **периферийные устройства**, обычно подключаемые к порту USB — запустите команду `lsusb`.
+
+`iptraf-ng` - загрузка сети
+
+`uptime` - время работы системы. Средняя загрузка.   
+The current time, how long the system has been running, how many users are currently logged on, and the system load averages for the past 1, 5, and 15 minutes.
+`-s, --since` - system up since.
 
 ## Файловые системы
 
