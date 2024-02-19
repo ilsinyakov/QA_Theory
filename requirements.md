@@ -116,5 +116,9 @@
 
 Ниже показаны примеры технических требований.
 
+![Sequence diagram](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/search_flight_sequence_diagram.jpg)
+![Sequence diagram](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/book_flight_sequence_diagram.jpg)
+![Collabaration diagram](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/collaboration_diagram.png)
+![ER -diagram](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/ER-diagram.jpg)
 
 
