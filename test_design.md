@@ -9,12 +9,12 @@
 ### Подход "белого ящика"
 
 В качестве примера применения метода "белого ящика" рассмотрим очень простой фрагмент кода.
-'''java
+```java
 public void compareTwoNumbers (int a, int b) {
    if (a > b)
         System.out.println "A greater than B"
    else
         System.out.println "A less than B"
 }
-'''
+```
 Наша задача —  покрыть этот метод тестами, принимая во внимание код.
