@@ -129,3 +129,16 @@ Your text here
 
 Можно получить доступ к поднятому сайту по внешнему IP и порту докера.  
 http://78.245.93.245:32769/
+
+## Docker Hub
+
+`sudo docker login -u <login>` - авторизация. В качестве пароля лучше использовать токен.
+
+На сайте нужно создать репозиторий.
+
+`sudo docker tag local-image:tagname new-repo:tagname`  
+`local-image` - локальный образ  
+`tagname` - tag, если он устанавливался при создании образа  
+`new-repo:tagname` - созданный на сайте репозиторий и присваиваемый отправляемому образу tag
+
+`sudo docker push new-repo:tagname` - отправка в репозиторий.
