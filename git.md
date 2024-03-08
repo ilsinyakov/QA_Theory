@@ -114,11 +114,13 @@ Git поставляется с инструментом git config , котор
 
 Создание локального репозитория (инициализация):  
 `git init`  
-Связь локального репозитория с удаленным:  
-`git remote add origin <адрес удаленного репозитория>`
+Создать связь локального репозитория с удаленным репозиторием:  
+`git remote add origin <адрес удаленного репозитория>`  
+Удалить связь:  
+`git remote rm origin`
 
 Клонирование репозитория с использованием git clone:
-* По SSH (рекомендуется) 
+* По SSH (рекомендуется)  
 `$ git clone git@github.com:[your-account-name]/[repo-name].git demo`
 * По HTTPS  
 `$ git clone https://github.com/[your-account-name]/[repo-name]/.git demo`
