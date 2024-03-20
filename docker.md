@@ -144,3 +144,17 @@ http://78.245.93.245:32769/
 `new-repo:tagname` - созданный на сайте репозиторий и присваиваемый отправляемому образу tag
 
 `sudo docker push new-repo:tagname` - отправка в репозиторий.
+
+## Docker compose
+
+Запустить docker compose:  
+`docker compose -f docker-compose.local.yml up -d --build`
+`-f <конфигурационный YAML файл>`  
+`-d` - открепить от терминала  
+
+Остановить docker compose:  
+`docker compose -f docker-compose.local.yml down -v`
+
+
+
+
