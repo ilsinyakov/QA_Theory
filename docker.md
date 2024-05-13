@@ -61,7 +61,8 @@
 
 `sudo docker stop exampleuser-4` - остановить контейнер
 
-`sudo doker rmi [<image id> <image id> ...]` - удалить образы из системы
+`sudo doker rmi [<image id> <image id> ...]` - удалить образы из системы  
+`-f` - принудительно
 
 ## Работа по сети
 
