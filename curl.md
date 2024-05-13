@@ -17,6 +17,10 @@
 
 **Отправка данных. POST**:  
 `-d`  
-`curl -d "field1=val&fileld2=val1" http://posttestserver.com/post.php`  
+`curl -d "field1=val&fileld2=val1" http://posttestserver.com/post.php`
+
+**Передать заголовки**:
+`-H`
+
 
 
