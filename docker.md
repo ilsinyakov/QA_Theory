@@ -161,11 +161,11 @@ http://78.245.93.245:32769/
 
 `sudo doker rmi [<image id> <image id> ...]` - удалить образы из системы  
 `-f` - принудительно  
-`sudo docker rmi -f $(docker images -qa)` - удаление всех образов из системы  
+`sudo docker rmi -f $(sudo docker images -qa)` - удаление всех образов из системы  
 
 `sudo docker rm [<container> <container> ...]` - удалить контейнеры из системы  
 `sudo docker rm $(sudo docker ps -qa)` - удалить все контейнеры из системы  
 
 `sudo docker volume rm $(sudo docker volume ls -q)` - удалить все тома из системы  
 
-`docker network rm $(docker network ls -q)` - удалить все сети из системы
+`sudo docker network rm $(sudo docker network ls -q)` - удалить все сети из системы
