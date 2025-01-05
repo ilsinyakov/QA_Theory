@@ -150,7 +150,7 @@ http://78.245.93.245:32769/
 ## Docker compose
 
 Запустить docker compose:  
-`docker compose -f docker-compose.local.yml up -d --build`
+`docker compose -f docker-compose.local.yml up -d --build`  
 `-f <конфигурационный YAML файл>`  
 `-d` - открепить от терминала  
 
