@@ -137,12 +137,20 @@ demo - это имя каталога, в который будет скопир
 
 ### Настройка входа по SSH
 
+#### Bash
+
 `ssh-keygen -t ed25519 -C "your_email@example.com"` - создаем пару SSH ключей. Указываем полный путь для сохранения.  
 `ssh-keygen -t rsa -b 4096 -C "your_email@example.com"` - если не работает.  
 
 `eval "$(ssh-agent -s)"` - запускаем SSH агент в фоне.
 
 `ssh-add ~/.ssh/<путь к private key файлу>` - добавляем приватный ключ в систему
+
+#### PowerShell
+
+`Start-Service ssh-agent`  
+`Set-Service ssh-agent -StartupType Automatic`  
+`ssh-add $env:USERPROFILE\.ssh\<путь к private key файлу>`
 
 Прописываем публичный ключ в профиле на Github.
 
