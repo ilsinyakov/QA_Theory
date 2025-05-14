@@ -146,6 +146,36 @@ demo - это имя каталога, в который будет скопир
 
 `ssh-add ~/.ssh/<путь к private key файлу>` - добавляем приватный ключ в систему
 
+Для того, чтобы сертфикат подгружался каждый раз при запуске терминала, добавить в .bashrc:  
+```
+# Автозапуск ssh-agent
+env=~/.ssh/agent.env
+
+agent_load_env () { 
+    test -f "$env" && . "$env" >| /dev/null 
+    # Проверяем, что переменные существуют
+    if [ -n "$SSH_AGENT_PID" ] && ps -p "$SSH_AGENT_PID" > /dev/null; then
+        export SSH_AUTH_SOCK
+        export SSH_AGENT_PID
+    else
+        return 1
+    fi
+}
+
+agent_start () {
+    (umask 077; ssh-agent >| "$env")
+    . "$env" >| /dev/null ;
+    ssh-add ~/.ssh/git_lab  # Путь к вашему ключу
+}
+
+agent_load_env
+if ! ps -p "$SSH_AGENT_PID" > /dev/null; then
+    agent_start
+fi
+```
+Проверить, что файл ~/.ssh/agent.env создается. Если нет - создать вручную:  
+ `(umask 077; ssh-agent >| ~/.ssh/agent.env)`
+
 #### PowerShell
 
 `Start-Service ssh-agent`  
