@@ -269,15 +269,35 @@ chmod 2xyz /path/to/file
 
 ### Настройка беспарольного доступа по SSH
 
-1. В `/etc/ssh/sshd_config` нужно добавить (или раскомментировать) строки:  
+1. На **сервере** в `/etc/ssh/sshd_config` нужно добавить (или раскомментировать) строки:  
    `PubkeyAuthentication yes`  
    `AuthorizedKeysFile     %h/.ssh/authorized_keys`
-2. Применить изменения:
+
+2. Применить изменения на **сервере**:  
    `sudo systemctl restart sshd`  
    или  
    `sudo service ssh restart`
-3. 
 
+3. Генерируем пару ключей:  
+   `ssh-keygen -t rsa -b 4096 -C "gitlab-ci-deploy" -f ci_deploy_key -N ""`  
+   `-f ci_deploy_key` — имя файла (создаст ci_deploy_key и ci_deploy_key.pub)  
+   `-N ""` — пустая passphrase
+
+4. Публичный ключ копируем в файл на **сервере** `~/.ssh/authorized_keys`  
+   Нужно следить, чтобы у директории .ssh были права доступа 700, а у файла authorized_keys - 600
+
+5. Приватный ключ прописываем в ssh агенте в терминале, с которого будем подключаться (на **клиенте**).  
+   `eval "$(ssh-agent -s)"`  
+   `ssh-add ~/.ssh/ci_deploy_key`  
+
+   Возможно нужно будет сначала очистить файл от виндовского символа перевода каретки '\r', например, так:  
+   `cat ci_deploy_key | tr -d '\r' > ~/.ssh/ci_deploy_key`
+
+6. Подключаемся (с **клиента**):  
+   `ssh username:host`
+
+7. Посмотреть логи авторизаций (на **сервере**):  
+   `sudo tail -n50 /var/log/auth.log`
 
 ## Исполняемые файлы, процессы и службы
 
