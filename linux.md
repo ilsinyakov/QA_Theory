@@ -267,6 +267,18 @@ chmod 2xyz /path/to/file
 ```
 <hr>
 
+### Настройка беспарольного доступа по SSH
+
+1. В `/etc/ssh/sshd_config` нужно добавить (или раскомментировать) строки:  
+   `PubkeyAuthentication yes`  
+   `AuthorizedKeysFile     %h/.ssh/authorized_keys`
+2. Применить изменения:
+   `sudo systemctl restart sshd`  
+   или  
+   `sudo service ssh restart`
+3. 
+
+
 ## Исполняемые файлы, процессы и службы
 
 **PATH** - это переменная оболочки (shell variable), которая содержит список каталогов для поиска исполняемых файлов.  
