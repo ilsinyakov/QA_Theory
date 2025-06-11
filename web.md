@@ -304,6 +304,12 @@ ____
 
 ### Поиск потомков (обход дерева вниз)
 
+![Child](https://raw.githubusercontent.com/ilsinyakov/QA_Theory/refs/heads/main/Pictures/xpath-child.webp)
+
+![Descendant](https://raw.githubusercontent.com/ilsinyakov/QA_Theory/refs/heads/main/Pictures/xpath-descendant.webp)
+
+![Following](https://raw.githubusercontent.com/ilsinyakov/QA_Theory/refs/heads/main/Pictures/xpath-following.webp)
+
 |CSS|XPath|Комментарий|
 |--|--|--|
 |div h2|//div//h2|h2, дочерний к div (на любом уровне вложенности, div - test - h2 найдет)|
@@ -319,24 +325,34 @@ ____
 
 ### Поиск предков (обход дерева вверх)
 
+![Parent](https://raw.githubusercontent.com/ilsinyakov/QA_Theory/refs/heads/main/Pictures/xpath-parent.webp)
+
+![Ancestor](https://raw.githubusercontent.com/ilsinyakov/QA_Theory/refs/heads/main/Pictures/xpath-ancestor.webp)
+
+![Preceding](https://raw.githubusercontent.com/ilsinyakov/QA_Theory/refs/heads/main/Pictures/xpath-preceding.webp)
+
 |CSS|XPath|Комментарий|
 |--|--|--|
+|*:has(> a)|//a/parent::*|Родитель ссылки (строго 1 уровень наверх)|
 |-|//a/ancestor::*|Все предки ссылки - родитель, дед, прадед, на все уровни вверх смотрим (\<a\> — это ссылка в HTML)|
 |-|//a/ancestor::div|Только предок div|
 |-|//a/ancestor-or-self::*|Сама ссылка + предки|
 |-|//a/ancestor-or-self::div|Сама ссылка + предки div|
 |-|//a/ancestor-or-self::a|Сама ссылка + предки такого же типа (a)|
-|*:has(> a)|//a/parent::*|Родитель ссылки (строго 1 уровень наверх)|
 |-|//p/preceding::*|Все узлы до текущего, кроме непосредственного родителя (выше по дереву, кроме родителя)|
-|-|//p/preceding-sibling::*|Все узлы-соседи до текущего узла (под одним родителем). Братья выше по дереву.|
 
 ### Поиск соседей
+
+![Following-sibling](https://raw.githubusercontent.com/ilsinyakov/QA_Theory/refs/heads/main/Pictures/xpath-following-sibling.webp)
+
+![Preceding-sibling](https://raw.githubusercontent.com/ilsinyakov/QA_Theory/refs/heads/main/Pictures/xpath-preceding-sibling.webp)
 
 |CSS|XPath|Комментарий|
 |--|--|--|
 |h1 ~ h2|//h1/following-sibling::h2|Все элементы h2, которые находятся после элемента h1 внутри одного родителя, на том же уровне, что и h1 (h2-братья h1 ниже по дереву)|
 |h1 + h2|//h1/following-sibling::h2[1]|Только первый элемент h2, соседний к h1 справа (находится после). *В XPath можно выбрать не только первый, но и второй, третий, даже last()*|
 |h1 ~ h2:last-of-type|//h1/following-sibling::h2[last()]|Последний элемент h2, который находится после элемента h1 внутри одного родителя|
+|-|//p/preceding-sibling::*|Все узлы-соседи до текущего узла (под одним родителем). Братья выше по дереву.|
 
 ### Поиск по комментариям
 
