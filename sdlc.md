@@ -1,4 +1,4 @@
-# SDLC и STLC
+# SDLC (Software Development Life Cycle)
 
 ## Определение SDLC
 
