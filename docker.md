@@ -168,10 +168,10 @@ Your text here
 `sudo docker rmi [<image id> <image id> ...]` - удалить образы из системы  
 `-f` - принудительно  
 `sudo docker rmi -f $(sudo docker images -qa)` - удаление всех образов из системы  
+`docker images -f "dangling=true" -q | xargs docker rmi` - удалить "зависшие", т.е. ненужные образы
 
 `sudo docker rm [<container> <container> ...]` - удалить контейнеры из системы  
 `sudo docker rm $(sudo docker ps -qa)` - удалить все контейнеры из системы  
-`docker images -f "dangling=true" -q | xargs docker rmi` - удалить "зависшие", т.е. ненужные образы
 
 `sudo docker volume rm $(sudo docker volume ls -q)` - удалить все тома из системы  
 
