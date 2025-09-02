@@ -694,7 +694,7 @@ var userData = getUserInfo("userID")
 
 ### Тестирование gRPC
 
-Сразу хочу сделать маленькое отступление и сказать вот о чем. Так как это удаленный вызов процедур, то проверка логики работы самих процедур отлично покрывается юнит-тестами и нет необходимости тестировать их работу через внешние вызовы. К сожалению, в практике встречаются разные проекты, и могут быть те, где проверки юнит-тестами заменяют на внешние вызовы процедур для проверки их логики работы. В таком случае к списку ниже придется добавить проверку логики работы самих вызываемых процедур.
+Так как это удаленный вызов процедур, то проверка логики работы самих процедур отлично покрывается юнит-тестами и нет необходимости тестировать их работу через внешние вызовы. К сожалению, в практике встречаются разные проекты, и могут быть те, где проверки юнит-тестами заменяют на внешние вызовы процедур для проверки их логики работы. В таком случае к списку ниже придется добавить проверку логики работы самих вызываемых процедур.
 
 Окей, если логика работы покрыта юнит-тестами, то на что еще мне как тестировщику стоит обратить внимание?
 
@@ -711,3 +711,45 @@ var userData = getUserInfo("userID")
 4. Проверяем возвращаемые данные и ошибки (при необходимости, т.к. может быть покрыто юнит-тестами)
 5. Проверяем е2е-сценарии
 6. Проверяем коды ответов
+
+#### gRPCurl
+
+**gRPCurl** - консольная утилита, с помощью которой можно работать с gRPC API.
+
+[Офсайт](https://grpcurl.com/)
+
+[Github](https://github.com/fullstorydev/grpcurl/releases)
+
+Для установки нужно скачать и установить пакет с Github. Например, для Ubuntu:
+
+```bash
+curl -L -O "https://github.com/fullstorydev/grpcurl/releases/download/v1.9.3/grpcurl_1.9.3_linux_amd64.deb"
+```
+
+```bash
+sudo apt install ./grpcurl_1.9.3_linux_amd64.deb
+```
+
+___
+Пример запроса:
+
+```bash
+grpcurl -plaintext -d '{"name": "World"}' localhost:50051 example.ExampleService/SayHello
+```
+
+`-plaintext` - чтобы можно было работать без шифрования  
+`-d '{"name": "World"}'` - тело запроса  
+`localhost:50051` - IP и порт сервера  
+`example.ExampleService/SayHello`:  
+&nbsp;&nbsp;`example` - пространство имен (`package` в .proto файле)  
+&nbsp;&nbsp;`ExampleService` - сервис (`service` в .proto файле)  
+&nbsp;&nbsp;`SayHello` - метод (`rpc` в .proto файле)
+___
+
+`grpcurl -plaintext localhost:50051 list` - получить список доступных сервисов (на сервере должен быть настроен *server reflection* - получение информации о сервисах без .proto файла).
+
+`grpcurl -plaintext localhost:50051 list example.ExampleService` - получить список доступных методов сервиса (с *server reflection*).
+
+`grpcurl -plaintext -import-path ./proto -proto example.proto -d '{"name": "World"}' localhost:50051 example.ExampleService/SayHello` - запрос с использованием .proto файла (например, если *server reflection* не настроен)
+
+`grpcurl -plaintext -import-path ./proto -proto example.proto localhost:50051 describe example.ExampleService.SayHello` - получить описание метода `SayHello` (используется .proto файл)
