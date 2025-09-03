@@ -208,3 +208,183 @@ class Math:
 
 Используется для утилитарных функций, логически относящихся к классу, но не работающих с его состоянием.
 
+## Декораторы
+
+### Определение декоратора
+
+**Декоратор** — это функция (или объект), которая принимает другую функцию и возвращает новую функцию (или объект), обычно расширяя поведение исходной функции без изменения её кода.
+
+Фактически это синтаксический сахар:
+
+```python
+@dec
+def f(...):
+    ...
+```
+
+эквивалентно
+
+```python
+def f(...):
+    ...
+f = dec(f)
+
+```
+
+**Ключевая идея**: применение декоратора происходит в момент определения функции (import/загрузка модуля), а не при вызове. Возвращаемая "обёртка" вызывается позже — при вызове функции.
+
+### Пример декоратора
+
+```python
+def my_decorator(func):
+    def wrapper(*args, **kwargs):
+        print("До вызова")
+        result = func(*args, **kwargs)
+        print("После вызова")
+        return result
+    return wrapper
+
+@my_decorator
+def greet(name):
+    print(f"Hello, {name}!")
+
+greet("Anna")
+
+# Вывод:
+# До вызова
+# Hello, Anna!
+# После вызова
+```
+
+### Применение functools.wraps
+
+Если просто возвращать wrapper, то метаданные исходной функции (`__name__`, `__doc__`, сигнатура) будут потеряны — это мешает отладке и тестам. Решение — использовать `functools.wraps`:
+
+```python
+from functools import wraps
+
+def my_decorator(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # ...
+        return func(*args, **kwargs)
+    return wrapper
+```
+
+`@wraps` копирует `__name__`, `__doc__` и прочее у `func` в `wrapper`.
+
+### Декоратор с аргументами (фабрика декораторов)
+
+Если нужно передать параметры в декоратор, делаем ещё один внешний уровень:
+
+```python
+from functools import wraps
+
+def repeat(n):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            for _ in range(n):
+                func(*args, **kwargs)
+        return wrapper
+    return decorator
+
+@repeat(3)
+def say_hi():
+    print("Hi")
+
+say_hi()
+# Выведет "Hi" три раза
+```
+
+### Класс-декоратор
+
+Можно реализовать декоратор через класс с методом `__call__`:
+
+```python
+class CountCalls:
+    def __init__(self, func):
+        self.func = func
+        self.count = 0
+
+    def __call__(self, *args, **kwargs):
+        self.count += 1
+        print(f"Вызвано {self.count} раз")
+        return self.func(*args, **kwargs)
+
+@CountCalls
+def f(x):
+    return x * 2
+
+f(1)  # Вызвано 1 раз
+f(2)  # Вызвано 2 раз
+```
+
+Преимущество — можно хранить состояние в экземпляре.
+
+### Декораторы и методы (self/cls)
+
+Декоратор для метода — обычный декоратор; важно корректно принимать self/cls:
+
+```python
+from functools import wraps
+
+def debug(func):
+    @wraps(func)
+    def wrapper(self, *args, **kwargs):
+        print(f"Calling {func.__name__} with {args}, {kwargs}")
+        return func(self, *args, **kwargs)
+    return wrapper
+
+class A:
+    @debug
+    def m(self, x):
+        return x + 1
+
+A().m(5)
+```
+
+Если декоратор написан с *args, **kwargs, то self не требует отдельной обработки — это просто первый аргумент.
+
+### Стек декораторов — порядок применения
+
+Если несколько декораторов:
+
+```python
+@d1
+@d2
+def f(): 
+    ...
+```
+
+то при загрузке модуля происходит f = d1(d2(f)). То есть декораторы применяются **снизу вверх** (снизу ближе к def применяется первым внутри выражения).
+
+### Пример. Таймер
+
+```python
+import time
+from functools import wraps
+
+
+def timeit(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        start = time.perf_counter()
+        res = func(*args, **kwargs)
+        end = time.perf_counter()
+        print(f"{func.__name__} took {end - start:.8f}s")
+        return res
+    return wrapper
+
+
+@timeit
+def get_sum(a: int, b: int) -> int:
+    return a + b
+
+
+print(get_sum(2, 4))
+
+# get_sum took 0.00000130s
+# 6
+
+```
