@@ -366,7 +366,7 @@ import time
 from functools import wraps
 
 
-def timeit(func):
+def time_it(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         start = time.perf_counter()
@@ -377,7 +377,7 @@ def timeit(func):
     return wrapper
 
 
-@timeit
+@time_it
 def get_sum(a: int, b: int) -> int:
     return a + b
 
@@ -387,4 +387,171 @@ print(get_sum(2, 4))
 # get_sum took 0.00000130s
 # 6
 
+```
+
+## Контекстный менеджер
+
+### Определение контекстного менеджера
+
+Контекстный менеджер — это объект, который управляет ресурсом в блоке `with`: открывает/инициализирует ресурс при входе и гарантированно освобождает/закрывает его при выходе из блока, даже если внутри блока возникло исключение.
+
+Синтаксис:
+
+```python
+with <контекстный_менеджер> as <имя>:
+    # блок кода
+```
+
+### Протокол: `__enter__` и `__exit__`
+
+```python
+class CM:
+    def __enter__(self):
+        # код, выполняемый при входе в with
+        return value  # возвращаемое значение связывается с "as"
+    def __exit__(self, exc_type, exc_value, traceback):
+        # код, выполняемый при выходе из with (всегда выполняется)
+        # exc_type, exc_value, traceback — информация об исключении, если оно произошло
+        # вернуть True, чтобы подавить исключение; вернуть False/None — исключение будет проброшено дальше
+```
+
+Особенности:
+
+* `__enter__` выполняется до выполнения блока `with`.
+
+* `__exit__` вызывается всегда при выходе из блока (даже при `return` или при исключении), и получает параметры исключения, если оно было.
+
+* Если `__exit__` возвращает `True`, то исключение подавляется (не пробрасывается дальше). Если возвращает `False` или `None`, исключение повторно пробрасывается после `__exit__`.
+
+### Пример: работа с файлом
+
+```python
+with open("file.txt", "w") as f:
+    f.write("hello")
+# файл автоматически закрыт при выходе из with
+```
+
+`open()` возвращает объект, реализующий протокол контекстного менеджера — поэтому `with` удобен для работы с файлами.
+
+### Пример собственного контекстного менеджера (класс)
+
+```python
+class managed_file:
+    def __init__(self, filename, mode):
+        self.filename = filename
+        self.mode = mode
+
+    def __enter__(self):
+        self.file = open(self.filename, self.mode)
+        return self.file
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.file.close()
+        # не подавляем исключения — возвращаем None (или False)
+
+# Использование:
+with managed_file("a.txt", "w") as f:
+    f.write("test")
+```
+
+### Пример через `contextlib.contextmanager` (декоратор)
+
+`contextlib.contextmanager` позволяет реализовать контекстный менеджер как генератор:
+
+```python
+from contextlib import contextmanager
+
+@contextmanager
+def managed_file_cm(filename, mode):
+    f = open(filename, mode)
+    try:
+        yield f # управление — сюда попадёт тело with, f будет тем, что вернулось в as
+    finally:
+        f.close()
+
+# Использование:
+with managed_file_cm("b.txt", "w") as f:
+    f.write("hello")
+```
+
+Если внутри блока `with` возникает исключение, оно будет передано наружу, а код в `finally` выполнится — файл закроется.
+
+Если нужно обработать или подавить исключение внутри генератора, можно использовать блок `try`/`except` вокруг `yield` и принимать решение о подавлении (через `contextmanager` нужно повторно выбросить или не выбрасывать исключение).
+
+### Подавление исключений
+
+Есть готовая утилита `contextlib.suppress` для подавления конкретных исключений:
+
+```python
+from contextlib import suppress
+
+with suppress(FileNotFoundError):
+    os.remove("no_file.txt")  # если файла нет — исключение подавится
+```
+
+При использовании `__exit__`, чтобы подавить исключение, нужно возвращать `True`:
+
+```python
+def __exit__(self, exc_type, exc_value, tb):
+    if exc_type is SomeExpectedError:
+        # обработали — подавляем
+        return True
+    # иначе возвращаем None/False — исключение пробросится
+```
+
+### Порядок входа/выхода при нескольких менеджерах
+
+В строке `with A() as a, B() as b`: порядок эквивалентен вложенным `with`:
+
+```python
+with A() as a:
+    with B() as b:
+        ...
+```
+
+* Вход: `A.__enter__()` затем `B.__enter__()`.
+
+* Выход (по завершении блока): `B.__exit__()` затем `A.__exit__()` (обратный порядок).
+
+### Пример классовый менеджер / contextmanager
+
+```python
+import time
+
+
+class Timer:
+    def __enter__(self):
+        self.start = time.perf_counter()
+        return self
+
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        elapsed = time.perf_counter() - self.start
+        print(f"Elapsed: {elapsed:.6f}s")
+        # не подавляем исключения (вернём False/None)
+
+
+with Timer():
+    print(2 + 4)
+
+# 6
+# Elapsed: 0.000049s
+```
+
+```python
+import time
+from contextlib import contextmanager
+
+
+@contextmanager
+def timer():
+    start = time.perf_counter()
+    try:
+        yield
+    finally:
+        print(f"Elapsed: {time.perf_counter() - start:.6f}s")
+
+
+with timer():
+    print(2 + 4)
 ```
