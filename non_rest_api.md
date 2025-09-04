@@ -22,6 +22,7 @@
   * [Преимущества gRPC](#преимущества-grpc)
   * [Статус-коды gRPC](#статус-коды-grpc)
   * [Тестирование gRPC](#тестирование-grpc)
+    * [gRPCurl](https://github.com/ilsinyakov/QA_Theory/blob/main/non_rest_api.md#grpcurl)
 
 ## GraphQL
 
