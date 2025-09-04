@@ -1,5 +1,37 @@
 # Python
 
+## Содержание
+
+* [Типы данных](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#типы-данных)
+  * [Числовые типы (Numeric Types)](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#числовые-типы-numeric-types)
+  * [Логический тип (Boolean)](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#логический-тип-boolean)
+  * [Строки (Strings)](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#строки-strings)
+  * [Последовательности (Sequence Types)](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#последовательности-sequence-types)
+  * [Множества (Sets)](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#множества-sets)
+  * [Словари (Dictionaries)](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#словари-dictionaries)
+  * [NoneType](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#nonetype)
+* [Изменяемость (Mutability)](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#изменяемость-mutability)
+* [ООП](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#ооп)
+  * [Основные принципы ООП](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#основные-принципы-ооп)
+    * [Инкапсуляция](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#инкапсуляция)
+    * [Абстракция](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#абстракция)
+    * [Наследование](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#наследование)
+    * [Полиморфизм](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#полиморфизм)
+  * [self](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#self)
+  * [Переменные (атрибуты) класса и экземпляра](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#переменные-атрибуты-класса-и-экземпляра)
+  * [classmethod (метод класса)](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#classmethod-метод-класса)
+  * [staticmethod (статический метод)](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#staticmethod-статический-метод)
+* [Декораторы](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#декораторы)
+  * [Определение декоратора](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#определение-декоратора)
+  * [Пример декоратора](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#пример-декоратора)
+  * [Применение functools.wraps](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#применение-functoolswraps)
+  * [Декоратор с аргументами (фабрика декораторов)](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#декоратор-с-аргументами-фабрика-декораторов)
+  * [Класс-декоратор](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#класс-декоратор)
+  * [Декораторы и методы (self/cls)](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#декораторы-и-методы-selfcls)
+  * [Стек декораторов — порядок применения](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#стек-декораторов--порядок-применения)
+  * [Пример. Таймер](https://github.com/ilsinyakov/QA_Theory/blob/main/python.md#пример-таймер)
+  
+
 ## Типы данных
 
 **Динамическая типизация** — Python автоматически определяет тип at runtime, без явного указания.
