@@ -7,6 +7,11 @@
 - [Примитивы (Primitive Data Types)](#примитивы-primitive-data-types)
 - [Ссылочные типы (Reference types)](#ссылочные-типы-reference-types)
 - [Работа с памятью](#работа-с-памятью)
+- [Модификаторы видимости (доступа)](#модификаторы-видимости-доступа)
+  - [`public`](#public)
+  - [`protected`](#protected)
+  - [package-private (default, «без модификатора»)](#package-private-default-без-модификатора)
+  - [`private`](#private)
 
 ## JVM / JRE / JDC
 
@@ -109,3 +114,101 @@ Heap (объекты)
 |Array|В куче|✅ Mutable|int[] a = {1,2}|
 |Collection|В куче|✅ Mutable (обычно)|ArrayList<>|
 |Map|В куче|✅ Mutable|HashMap<>|
+
+## Модификаторы видимости (доступа)
+
+Модификаторы доступа контролируют, какие классы/методы/поля/конструкторы видимы из каких мест в программе — это главный инструмент инкапсуляции.
+
+В Java есть четыре «уровня» доступа (в порядке от наибольшего доступа к наименьшему):
+
+- `public` — доступ везде;
+- `protected` — доступ внутри пакета и для подклассов;
+- *package-private* (*default*, без ключевого слова) — доступ только внутри того же пакета;
+- `private` — доступ только внутри того же класса (для членов) или недоступен для топ-уровневого класса.
+
+### `public`
+
+- Что: открытый доступ **из любого места** (любого пакета, любого модуля, при наличии экспортов модулей).
+- Где применим: топ-уровневые классы (только public или default), методы, поля, конструкторы, вложенные классы.
+- Пример:
+
+```java
+// file: com/example/A.java
+package com.example;
+public class A {
+    public int x;
+    public void foo() {}
+}
+```
+
+Другой класс в любом пакете может `new com.example.A()` и обратиться к `x` и `foo()`.
+
+### `protected`
+
+- `protected` даёт доступ **в пределах пакета** (как package-private) и — дополнительный — **для подклассов** вне пакета.
+- Нюанс: когда подкласс находится в другом пакете, доступ к `protected`-члену разрешён только через объект, чего тип является подклассом (или внутри subclass-кода — обычно через `this`). Проще: подкласс может обращаться к `protected` членам своего суперкласса для себя/своих экземпляров, но не может произвольно взять экземпляр суперкласса (из другого пакета) и читать/писать его `protected` поле.
+
+Пример (легальный):
+
+```java
+// package a
+package a;
+public class Super {
+    protected int p = 42;
+}
+
+// package b
+package b;
+import a.Super;
+public class Sub extends Super {
+    void test() {
+        System.out.println(this.p); // OK: доступ через "this"
+    }
+}
+```
+
+Пример (нелегальный — компилятор выдаст ошибку):
+
+```java
+// package b
+package b;
+import a.Super;
+public class Friend {
+    void test(Super s) {
+        System.out.println(s.p); // ERROR если Friend не в том же пакете a и не является подклассом
+    }
+}
+```
+
+В пакете `a` любой другой класс (даже не являющийся подклассом) может обращаться к `p`, потому что package access включён. `protected` = package + subclass.
+
+### package-private (default, «без модификатора»)
+
+- Что: если нет ключевого слова `public/protected/private`, то доступ разрешён только **внутри того же пакета** (package-private). Часто называют «default access» или «package access».
+- Где применим: топ-уровневые классы (может быть только package-private или public), члены класса.
+- Пример:
+
+```java
+// в пакете com.example
+class PackageOnly {       // package-private top-level class
+    void doSomething() {} // package-private method
+}
+```
+
+Классы/члены в других пакетах не увидят их. Это удобный способ скрыть реализацию в пакете.
+
+### `private`
+
+- Что: виден **только внутри того же класса** (для членов). Для вложенных (inner/static nested) классов `private` также ограничивает видимость в пределах внешнего класса / вложенного класса как обычного члена.
+- Где применим: поля, методы, конструкторы, вложенные классы. Топ-уровневые классы не могут быть `private`.
+- Пример:
+
+```java
+public class Secret {
+    private int secretValue;
+    private void hide() {}
+    private static class Helper {} // допустимо
+}
+```
+
+Ни один другой класс (даже в том же пакете) не может обратиться к `secretValue` или `hide()`.
