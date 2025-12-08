@@ -5,6 +5,7 @@
 - [Структура SOAP-сообщения](#структура-soap-сообщения)
 - [WS-Security](#ws-security)
 - [SOAP vs REST](#soap-vs-rest)
+- [SoapUI](#soapui)
 
 ## Основные понятия
 
