@@ -115,31 +115,45 @@
 
 - **DDL** — язык определения данных (Data Definition Language)
 
-|N|Команда|Описание|
-|--|--|--|
-|1|`CREATE`|Создает новую таблицу, представление таблицы или другой объект в БД|
-|2|`ALTER`|Модифицирует существующий в БД объект, такой как таблица|
-|3|`DROP`|Удаляет существующую таблицу, представление таблицы или другой объект в БД|
+|N|Команда|Описание|Примеры|
+|--|--|--|--|
+|1|`CREATE`|Создает новую таблицу, представление таблицы или другой объект в БД|`CREATE TABLE my__contacts (last_name VARCHAR (ЗО), first_name VARCHAR (20));`|
+|2|`ALTER`|Модифицирует существующий в БД объект, такой как таблица|`ALTER TABLE my_contacts ADD COLUMN phone VARCHAR(10) AFTER first_name;`|
+|3|`DROP`|Удаляет существующую таблицу, представление таблицы или другой объект в БД|`DROP VIEW pb_dimes;`|
 
 <br>
 
 - **DML** — язык изменения данных (Data Manipulation Language)
 
-|N|Команда|Описание|
-|--|--|--|
-|1|`SELECT`|Извлекает записи из одной или нескольких таблиц|
-|2|`INSERT`|Создает записи|
-|3|`UPDATE`|Модифицирует записи|
-|4|`DELETE`|Удаляет записи|
+|N|Команда|Описание|Примеры|
+|--|--|--|--|
+|1|`SELECT`|Извлекает записи из одной или нескольких таблиц|`SELECT * FROM my__contacts;`|
+|2|`INSERT`|Создает записи|`INSERT INTO my_contacts (interests, first_name, last_name) VALUES ('Каяк', 'Джиллиан', 'Андерсон');`|
+|3|`UPDATE`|Модифицирует записи|`UPDATE my_contacts SET first_name = 'Питер' WHERE last_name = 'Андерсон';`|
+|4|`DELETE`|Удаляет записи|`DELETE FROM clown_info WHERE activities = 'танцы';`|
 
 <br>
 
 - **DCL** — язык управления данными (Data Control Language)
 
-|N|Команда|Описание|
-|--|--|--|
-|1|`GRANT`|Наделяет пользователя правами|
-|2|`REVOKE`|Отменяет права пользователя|
+|N|Команда|Описание|Примеры|
+|--|--|--|--|
+|1|`GRANT`|Наделяет пользователя правами|`GRANT SELECT ON clown_info TO elsie;`|
+|2|`REVOKE`|Отменяет права пользователя|`REVOKE SELECT ON clown_info FROM elsie;`|
+|3|`DENY`|Задаёт запрет, имеющий приоритет над разрешением|`DENY CREATE TABLE, CREATE PROCEDURE to peter;`|
+
+<br>
+
+- **TCL** — язык управления транзакциями (Transaction Control Language)
+
+|N|Команда|Описание|Примеры|
+|--|--|--|--|
+|1|`COMMIT`|Применяет транзакцию|`COMMIT;`|
+|2|`ROLLBACK`|Откатывает все изменения, сделанные в контексте текущей транзакции|`ROLLBACK;`|
+|3|`SAVEPOINT`|Создаёт точку сохранения внутри транзакции|`SAVEPOINT save1;`|
+|4|`RELEASE SAVEPOINT`|Удаляет точку сохранения|`RELEASE SAVEPOINT save1;`|
+|5|`ROLLBACK TO SAVEPOINT`|Откатывает транзакцию до точки сохранения|`ROLLBACK TO SAVEPOINT save1;`|
+|6|`SET TRANSACTION`|Устанавливает характеристики текущей транзакции|`SET TRANSACTION READ WRITE;`|
 
 ## Ограничения
 
