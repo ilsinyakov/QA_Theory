@@ -15,6 +15,17 @@
 
 ## mongosh
 
+### Подключение к кластеру
+
+```sh
+mongodb+srv://user@testcluster.qwerty.mongodb.net/
+```
+
+`user` - пользователь, от которого подключаемся.  
+`testcluster.qwerty.mongodb.net/` - URL кластера.
+
+Далее нужно ввести пароль.
+
 ### Узнать, в какой БД находимся
 
 ```javascript
