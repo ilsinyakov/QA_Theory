@@ -12,6 +12,16 @@
   - [`protected`](#protected)
   - [package-private (default, «без модификатора»)](#package-private-default-без-модификатора)
   - [`private`](#private)
+- [Исключения](#исключения)
+- [Логирование](#логирование)
+  - [System.err.println](#systemerrprintln)
+  - [Log4j](#log4j)
+  - [JUL — java.util.logging](#jul--javautillogging)
+  - [JCL — jakarta commons logging](#jcl--jakarta-commons-logging)
+  - [Logback](#logback)
+  - [SLF4J — simple logging facade for java](#slf4j--simple-logging-facade-for-java)
+  - [Уровни логирования](#уровни-логирования)
+  - [slf4j-log4j12](#slf4j-log4j12)
 
 ## JVM / JRE / JDC
 
