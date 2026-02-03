@@ -30,7 +30,6 @@
 
 ## Как работает CI/CD
 
-
 ## Jenkins
 
 ### Установка плагинов
@@ -55,8 +54,6 @@
 
 * Создаем `Item` типа `Pipeline`
 * В настройках в Triggers ставим галочку: *GitHub hook trigger for GITScm polling* - чтобы Jenkins слушал события на эндпоинте github-webhook
-* 
-
 
 ### Настройка WebHook в репозитории
 
