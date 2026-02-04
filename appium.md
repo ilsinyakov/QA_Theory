@@ -1,5 +1,19 @@
 # Appium
 
+- [Appium Framework](#appium-framework)
+- [Стек Appium](#стек-appium)
+  - [Appium сервер](#appium-сервер)
+  - [UIAutomator и UIAutomation](#uiautomator-и-uiautomation)
+    - [Как Appium работает в Android](#как-appium-работает-в-android)
+    - [Как Appium работает в iOS](#как-appium-работает-в-ios)
+  - [Espresso](#espresso)
+- [Установка и настройка](#установка-и-настройка)
+  - [Установка сервера](#установка-сервера)
+  - [Установка драйвера](#установка-драйвера)
+  - [Android Studio](#android-studio)
+  - [Настройка окружения](#настройка-окружения)
+  - [Appium Inspector](#appium-inspector)
+
 ## Appium Framework
 
 **Appium** — это кросс-платформенный open source инструмент для автоматизации тестирования десктоп и мобильных приложений под Android и iOS. Архитектура Appium схожа с Selenium WebDriver, широко распространенным и ставшим стандартом в web-тестировании. Кроссплатформенность достигается за счет использования разных драйверов для разных платформ. Именно драйверы транслируют клиентский Appium-код в команды, непосредственно исполняемые на устройствах.
@@ -162,3 +176,5 @@ public void espressoTest() {
 <https://appiuminspector.com/>
 
 В настройках нужно прописать адрес и порт appium-сервера и capabilities для подключения к устройству и тестируемому приложению.
+
+![Appium Inspector](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/Appium_Inspector.png?raw=true)
