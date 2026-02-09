@@ -176,3 +176,5 @@ Your text here
 `sudo docker volume rm $(sudo docker volume ls -q)` - удалить все тома из системы  
 
 `sudo docker network rm $(sudo docker network ls -q)` - удалить все сети из системы
+
+`docker builder prune -a` - удалить все кэшированные слои образов
