@@ -667,3 +667,67 @@ Spring Boot предлагает разработчикам те же самые
 **Методы**: методы контроллера — это handler methods, принимают параметры из запроса (`@PathVariable`, `@RequestParam`, `@RequestBody`, `@RequestHeader` и т.д.) и возвращают данные (String, DTO, `ResponseEntity<T>`, ModelAndView и т.п.).
 
 **Сериализация/десериализация**: Spring использует `HttpMessageConverter` (обычно Jackson) для преобразования JSON ↔ POJO
+
+#### ENVIRONMENT в Spring Boot
+
+**Переменные окружения** — это пара `NAME=VALUE`, которые предоставляет операционная система (или контейнер/оркестратор) процессу при его старте. Их используют для конфигурации приложений (путь к БД, порт, секреты и т.п.) без правки кода или артефактов.
+
+Spring Boot собирает конфигурацию из множества источников (command-line, env vars, файл application.yml/properties, system properties и т.д.) и использует правило приоритета: значения сверху перечёркивают нижележащие. Это позволяет гибко переопределять настройки в среде.
+
+Порядок приоритета (сверху — выше приоритет):
+
+1. Аргументы командной строки (--server.port=8081)
+2. `SPRING_APPLICATION_JSON` (JSON в env или system property)
+3. ServletConfig / ServletContext init params (в веб-контейнере)
+4. JNDI (если используется)
+5. Java System properties (`-Dspring.profiles.active=prod`)
+6. OS environment variables (переменные окружения)
+7. `application.properties` / `application.yml` в внешнем `config/` или в той же папке, где jar
+8. `application.properties` / `application.yml` в classpath (внутри jar)
+9. `@PropertySource` и т.п.
+10. Default properties (установленные программно через `SpringApplication.setDefaultProperties`)
+
+Переменные окружения связываются с настройками Spring Boot через:
+
+1. `@Value`
+
+    ```java
+    @Value("${MY_APP_TIMEOUT:30}") // если нет — 30 по умолчанию
+    private int timeout;
+    ```
+
+    Spring сначала ищет свойство MY_APP_TIMEOUT в доступных источниках (включая env vars, если имя совпадает с ключом).
+
+2. `@ConfigurationProperties` (рекомендуется для групп настроек)
+
+    ```java
+    @Component
+    @ConfigurationProperties(prefix = "app")
+    public class AppProperties {
+        private String host;
+        private int port;
+        // getters/setters
+    }
+    ```
+
+    Env var `APP_HOST` или `APP_HOST/APP_PORT` будет корректно привязан.
+
+3. Через `Environment`
+
+    ```java
+    @Autowired
+    private Environment env;
+
+    String url = env.getProperty("spring.datasource.url");
+    ```
+
+**Сопоставление имен**:
+
+- точка `.` ↔ подчеркивание `_` в env vars;
+- kebab-case (`my-app-value`) ↔ UNDERSCORE (`MY_APP_VALUE`);
+- регистр игнорируется.
+
+Примеры:
+
+- property `spring.datasource.url` → env var `SPRING_DATASOURCE_URL`
+- property `app.somethingValue` → env var `APP_SOMETHING_VALUE`
