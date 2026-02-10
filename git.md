@@ -420,3 +420,11 @@ git commit -m "Ваш коммит"
 `git add .` - фиксируем изменения в стейдж
 
 `git commit -m ".gitignore is now working"` - делаем коммит
+
+### В разных терминалах разный `status`
+
+Обычно это связано с разной обработкой перевода строк.
+
+`git config --list | grep autocrlf` - проверяем
+
+`git config --global core.autocrlf true` - настраиваем
