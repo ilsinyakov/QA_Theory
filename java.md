@@ -632,6 +632,13 @@ public class UserService {
 
 #### `@Bean`
 
+**Назначение**: объявляет в методе фабрику Spring-бина — возвращаемый объект регистрируется в `ApplicationContext`.
+
+**Имя бина**: по-умолчанию — имя метода; можно задать `@Bean("myName")`
+
+**Скоуп**: по-умолчанию `singleton`. Изменяют через `@Scope("prototype")` и т.п.
+
+**Когда использовать**: для конфигурации бинов из сторонних библиотек или когда нужно создать бин программно (настройка, фабрика, сложная инициализация). Для простых Java-классов чаще используют `@Component/@Service/@Repository`.
 
 ### Spring Boot
 
@@ -647,3 +654,16 @@ Spring Boot предлагает разработчикам те же самые
 
 ![Spring Boot](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/Spring_Boot.png?raw=true)
 
+#### Контроллер в Spring Boot
+
+**Контроллер** — это компонент приложения, который принимает HTTP-запросы, обрабатывает их и возвращает ответ. В Spring Boot контроллеры реализованы поверх Spring MVC (DispatcherServlet) и служат "входной точкой" для веб-слоя.
+
+**Аннотации**:
+
+- `@Controller` — обычный MVC-контроллер (возвращает view или шаблон).
+- `@RestController` — `@Controller` + `@ResponseBody`, возвращает тело ответа (обычно JSON) напрямую.
+- Маршрутизация: `@RequestMapping`, `@GetMapping`, `@PostMapping`, `@PutMapping`, `@DeleteMapping` и т.п.
+
+**Методы**: методы контроллера — это handler methods, принимают параметры из запроса (`@PathVariable`, `@RequestParam`, `@RequestBody`, `@RequestHeader` и т.д.) и возвращают данные (String, DTO, `ResponseEntity<T>`, ModelAndView и т.п.).
+
+**Сериализация/десериализация**: Spring использует `HttpMessageConverter` (обычно Jackson) для преобразования JSON ↔ POJO
