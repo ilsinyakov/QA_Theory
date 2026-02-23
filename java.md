@@ -22,6 +22,21 @@
   - [SLF4J — simple logging facade for java](#slf4j--simple-logging-facade-for-java)
   - [Уровни логирования](#уровни-логирования)
   - [slf4j-log4j12](#slf4j-log4j12)
+- [Spring](#spring)
+  - [Spring Framework](#spring-framework)
+  - [Преимущества и недостатки Spring](#преимущества-и-недостатки-spring)
+    - [Преимущества](#преимущества)
+    - [Недостатки](#недостатки)
+  - [Основные понятия Spring](#основные-понятия-spring)
+    - [DI/IoC](#diioc)
+    - [Бины и контекст](#бины-и-контекст)
+    - [Способы конфигурации приложения](#способы-конфигурации-приложения)
+    - [Репозиторий](#репозиторий)
+  - [Аннотации Spring](#аннотации-spring)
+    - [`@Bean`](#bean)
+  - [Spring Boot](#spring-boot)
+    - [Контроллер в Spring Boot](#контроллер-в-spring-boot)
+    - [ENVIRONMENT в Spring Boot](#environment-в-spring-boot)
 
 ## JVM / JRE / JDK
 
