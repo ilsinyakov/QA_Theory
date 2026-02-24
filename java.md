@@ -12,6 +12,13 @@
   - [`protected`](#protected)
   - [package-private (default, «без модификатора»)](#package-private-default-без-модификатора)
   - [`private`](#private)
+- [Модификатор `final`](#модификатор-final)
+  - [Final переменные](#final-переменные)
+  - [Final методы](#final-методы)
+  - [Final классы](#final-классы)
+  - [Final параметры методов](#final-параметры-методов)
+  - [Blank final переменные](#blank-final-переменные)
+  - [Static final переменные (константы)](#static-final-переменные-константы)
 - [Исключения](#исключения)
 - [Абстрактные классы и интерфейсы](#абстрактные-классы-и-интерфейсы)
   - [Интерфейсы](#интерфейсы)
@@ -247,6 +254,104 @@ public class Secret {
 ```
 
 Ни один другой класс (даже в том же пакете) не может обратиться к `secretValue` или `hide()`.
+
+## Модификатор `final`
+
+Модификатор `final` в Java используется для ограничения изменяемости: он может применяться к переменным, методам, классам и параметрам.
+
+### Final переменные
+
+Переменная, объявленная с ключевым словом `final`, может быть инициализирована только один раз. После присвоения значения изменить его нельзя.
+
+Для **примитивных** типов это означает, что значение не может быть изменено.  
+Для **ссылочных** типов – сама ссылка не может указывать на другой объект, но состояние самого объекта можно менять (если объект изменяем).
+
+```java
+public class FinalVariableExample {
+    public static void main(String[] args) {
+        final int number = 10;
+        // number = 20; // Ошибка компиляции
+
+        final StringBuilder sb = new StringBuilder("Hello");
+        sb.append(", World"); // OK – меняем состояние объекта
+        // sb = new StringBuilder("New"); // Ошибка – нельзя переназначить ссылку
+        System.out.println(sb); // Hello, World
+    }
+}
+```
+
+### Final методы
+
+Метод, помеченный `final`, не может быть переопределён в подклассе. Это используется, когда реализация метода должна оставаться неизменной во всей иерархии наследования.
+
+```java
+class Parent {
+    public final void show() {
+        System.out.println("Это финальный метод");
+    }
+}
+
+class Child extends Parent {
+    // Ошибка компиляции: cannot override final method
+    // public void show() { ... }
+}
+```
+
+### Final классы
+
+Класс, объявленный как `final`, не может иметь подклассов (нельзя наследоваться от него). Это применяется для создания неизменяемых (immutable) классов или классов, которые не предназначены для расширения (например, `String`, `Integer`).
+
+```java
+final class Constants {
+    public static final double PI = 3.14159;
+}
+
+// Ошибка компиляции: cannot inherit from final Constants
+// class SubClass extends Constants { }
+```
+
+### Final параметры методов
+
+Параметры метода можно пометить `final`, чтобы запретить изменение значения параметра внутри метода (для примитивов) или переназначение ссылки (для объектов).
+
+```java
+public void process(final int value, final StringBuilder data) {
+    // value = 5; // Ошибка – нельзя изменить значение параметра
+    data.append(" дополнение"); // OK – объект можно менять
+    // data = new StringBuilder(); // Ошибка – нельзя переназначить ссылку
+}
+```
+
+### Blank final переменные
+
+Это final-переменные, которые объявлены без инициализации. Они должны быть обязательно инициализированы в конструкторе (или в блоке инициализации для нестатических, или в статическом блоке для статических).
+
+```java
+public class Person {
+    private final String name; // blank final
+
+    public Person(String name) {
+        this.name = name; // инициализация в конструкторе
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+```
+
+### Static final переменные (константы)
+
+Часто используется комбинация `static final` для создания констант уровня класса. Такие переменные обычно именуются заглавными буквами с подчёркиванием.
+
+```java
+public class MathConstants {
+    public static final double PI = 3.14159;
+    public static final int MAX_VALUE = 100;
+}
+```
+
+Обращение: `MathConstants.PI`
 
 ## Исключения
 
