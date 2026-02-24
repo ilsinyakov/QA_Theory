@@ -26,7 +26,7 @@
   - [`public int hashCode()`](#public-int-hashcode)
   - [`public final Class<?> getClass()`](#public-final-class-getclass)
   - [`protected Object clone() throws CloneNotSupportedException`](#protected-object-clone-throws-clonenotsupportedexception)
-  - [protected void finalize() throws Throwable (устаревший, начиная с Java 9)](#protected-void-finalize-throws-throwable-устаревший-начиная-с-java-9)
+  - [`protected void finalize() throws Throwable` (устаревший, начиная с Java 9)](#protected-void-finalize-throws-throwable-устаревший-начиная-с-java-9)
 - [Абстрактные классы и интерфейсы](#абстрактные-классы-и-интерфейсы)
   - [Интерфейсы](#интерфейсы)
     - [Когда использовать интерфейсы](#когда-использовать-интерфейсы)
@@ -424,7 +424,7 @@ System.out.println(clazz.getName());
 Реализация по умолчанию выполняет поверхностное копирование (shallow copy). Для возможности клонирования класс должен реализовать интерфейс-маркер `Cloneable`, иначе будет выброшено `CloneNotSupportedException`.  
 Рекомендуется переопределять для глубокого копирования (deep copy) или использовать альтернативные способы (копирующие конструкторы, фабрики).
 
-### protected void finalize() throws Throwable (устаревший, начиная с Java 9)
+### `protected void finalize() throws Throwable` (устаревший, начиная с Java 9)
 
 Вызывается сборщиком мусора перед уничтожением объекта. Предназначался для освобождения ресурсов (закрытие файлов, соединений).  
 Надёжность метода крайне низкая, его использование не рекомендуется из-за непредсказуемости времени вызова и проблем с производительностью. Заменён на `try-with-resources`, `Cleaner` и `PhantomReference`.
