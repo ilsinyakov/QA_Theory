@@ -659,6 +659,44 @@ private final Logger logger = LoggerFactory.getLogger(TelegramClient.class);
 
 **Контекст** — это набор бинов (объектов). Обращаясь к контексту — мы можем получить нужный нам бин (объект) по его имени например, или по его типу, или еще как-то.
 
+Для получения объекта (бина) из контекста (ApplicationContext) есть несколько способов:
+
+- Внедрение зависимости (`Autowired`):
+
+    ```java
+    @Component
+    public class MyService {
+        public void doSomething() { ... }
+    }
+
+    @Component
+    public class MyComponent {
+        @Autowired
+        private MyService myService; // Spring сам подставит бин из контекста
+
+        public void work() {
+            myService.doSomething();
+        }
+    }
+    ```
+
+    Это работает для всех бинов, управляемых Spring (компоненты, сервисы, репозитории, контроллеры и т.д.).
+- Получение ссылки на `ApplicationContext`:
+
+    ```java
+    @Component
+    public class ContextHolder {
+        @Autowired
+        private ApplicationContext context;
+
+        public void someMethod() {
+            MyService bean = context.getBean(MyService.class);
+            // или по имени:
+            MyService beanByName = (MyService) context.getBean("myService");
+        }
+    }
+    ```
+
 Кроме того, мы можем попросить спринг самого сходить поискать в своем контексте нужный нам бин и передать его в наш метод.
 
 Например, если у нас был такой метод:
@@ -833,7 +871,42 @@ Spring Boot предлагает разработчикам те же самые
 
 **Методы**: методы контроллера — это handler methods, принимают параметры из запроса (`@PathVariable`, `@RequestParam`, `@RequestBody`, `@RequestHeader` и т.д.) и возвращают данные (String, DTO, `ResponseEntity<T>`, ModelAndView и т.п.).
 
+```java
+import org.springframework.web.bind.annotation.*;
+
+@RestController //Указывает, что класс является контроллером, который обрабатывает HTTP-запросы и возвращает данные (например, JSON или текст) напрямую, без использования представлений
+@RequestMapping("/api") //Определяет базовый URL-путь для всех методов в этом контроллере
+public class HelloController {
+
+    @GetMapping("/hello") //метод обрабатывает GET-запросы по адресу /api/hello
+    public String sayHello() {
+        return "Привет, мир!";
+    }
+
+    @PostMapping("/greet") //для обработки POST-запросов на /api/greet
+    public String greet(@RequestParam String name) { //извлекает из запроса параметр name
+        return "Здравствуй, " + name + "!";
+    }
+}
+```
+
 **Сериализация/десериализация**: Spring использует `HttpMessageConverter` (обычно Jackson) для преобразования JSON ↔ POJO
+
+Для **запуска** приложения нужен основной класс с аннотацией `@SpringBootApplication` и методом `main`:
+
+```java
+@SpringBootApplication
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
+    }
+}
+```
+
+- Spring Boot **автоматически** сканирует классы в текущем пакете и его подпакетах, находит контроллеры и регистрирует их.
+- При запуске встроенный сервер (Tomcat) разворачивает приложение, и вы можете обращаться к эндпоинтам:
+  - `GET /api/hello` → ответ: Привет, мир!
+  - `POST /api/greet?name=Иван` → ответ: Здравствуй, Иван!
 
 #### ENVIRONMENT в Spring Boot
 
@@ -863,7 +936,7 @@ Spring Boot собирает конфигурацию из множества и
     private int timeout;
     ```
 
-    Spring сначала ищет свойство MY_APP_TIMEOUT в доступных источниках (включая env vars, если имя совпадает с ключом).
+    Spring сначала ищет свойство `MY_APP_TIMEOUT` в доступных источниках (включая переменные окружения, если имя совпадает с ключом).
 
 2. `@ConfigurationProperties` (рекомендуется для групп настроек)
 
@@ -873,11 +946,12 @@ Spring Boot собирает конфигурацию из множества и
     public class AppProperties {
         private String host;
         private int port;
+        
         // getters/setters
     }
     ```
 
-    Env var `APP_HOST` или `APP_HOST/APP_PORT` будет корректно привязан.
+    Переменные окружения `APP_HOST` и `APP_PORT` будут корректно привязаны.
 
 3. Через `Environment`
 
