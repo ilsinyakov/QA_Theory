@@ -171,7 +171,7 @@ Host: example.com
 
 Модель OSI включает семь слоёв, или уровней, — причём каждый из них выполняет определённую функцию: например, передать данные или представить их в понятном для человека виде на компьютере. У каждого слоя — свой набор протоколов.
 
-![Модель OSI](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/OSI.png)
+![Модель OSI](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/OSI.png?raw=true)
 
 ### L1. Физический уровень (Physical layer)
 
