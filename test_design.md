@@ -230,7 +230,7 @@ else
 
 Давайте поместим перечисленные состояния на схему.
 
-![State](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/state.png)
+![State](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/state.png?raw=true)
 
 ### Переходы
 
@@ -241,13 +241,13 @@ else
 
 Например, из состояния New (новый) допускается переход только в два состояния: Booked (место забронировано) или Expired (прошедший).
 
-![Transition_1](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/transition_1.png)
+![Transition_1](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/transition_1.png?raw=true)
 
 Чтобы произошёл переход из состояния New в состояние Booked, необходимо выполнить шаги из варианта использования Book Flight (забронировать авиабилет). Для перехода New — > Expired действий пользователя не требуется, переход происходит при наступлении определённого времени. На рисунке ниже эта операция показана как departureDate < now() (датаОтправления < сейчас()), она может быть легко выполнена на уровне базы данных с помощью языка SQL.
 
-![Transition_2](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/transition_2.png)
+![Transition_2](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/transition_2.png?raw=true)
 
-![Transition_3](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/transition_3.png)
+![Transition_3](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/transition_3.png?raw=true)
 
 На схеме есть один странный пробел. В случае отмены бронирования должно ли состояние автоматически смениться на New (новый), чтобы кто-нибудь другой мог забронировать место? В требованиях об этом ничего не сказано, поэтому, есть смысл спросить у заинтересованных лиц.
 
