@@ -1,5 +1,25 @@
 # Kotlin
 
+- [Версии Kotlin. История](#версии-kotlin-история)
+- [Типы данных](#типы-данных)
+  - [Целочисленные типы](#целочисленные-типы)
+    - [Со знаком](#со-знаком)
+    - [Без знака](#без-знака)
+    - [Числа в двоичной и шестнадцатеричной системах](#числа-в-двоичной-и-шестнадцатеричной-системах)
+  - [Числа с плавающей точкой](#числа-с-плавающей-точкой)
+  - [Логический тип Boolean](#логический-тип-boolean)
+  - [Символы Char](#символы-char)
+  - [Строки](#строки)
+    - [Шаблоны строк](#шаблоны-строк)
+  - [Выведение типа](#выведение-типа)
+  - [Статическая типизация](#статическая-типизация)
+  - [Тип Any](#тип-any)
+- [Companion-объекты](#companion-объекты)
+- [JUnit5 в Kotlin](#junit5-в-kotlin)
+  - [Хуки `@BeforeAll` и `@AfterAll`](#хуки-beforeall-и-afterall)
+    - [Способ 1: `companion object`](#способ-1-companion-object)
+    - [Способ 2: `@TestInstance(Lifecycle.PER_CLASS)`](#способ-2-testinstancelifecycleper_class)
+
 ## Версии Kotlin. История
 
 |Версия|Дата выхода|Основные изменения|
@@ -210,4 +230,99 @@ var name: Any = "Tom"
 println(name)   // Tom
 name = 6758
 println(name)   // 6758
+```
+
+## Companion-объекты
+
+Класс в языке Kotlin может содержать так называемые **companion-объекты**. companion-объект определяется внутри некоторого класса и позволяет определить свойства и методы, которые будут общими для всех объектов этого класса. В ряде языков программирования есть похожая концепция - статические поля/свойства и методы. То есть companion-объекты определяют свойства и методы класса в целом, а не объекта.
+
+Синтаксис:
+
+```kotlin
+class ClassName{
+ 
+    // свойства и методы класса
+    companion object {
+ 
+        // свойства и методы companion-объекта
+    }
+ 
+}
+```
+
+```kotlin
+fun main() {
+    println(CompanionExp.C) // 10
+    println(CompanionExp.getB()) // 20
+}
+
+class CompanionExp {
+
+    companion object {
+        const val C = 10
+        private const val B = 20;
+
+        fun getB() = B
+    }
+}
+```
+
+## JUnit5 в Kotlin
+
+### Хуки `@BeforeAll` и `@AfterAll`
+
+В Java `@BeforeAll` `@AfterAll` работают на `static` методах. В Kotlin нет `static`, поэтому есть несколько подходов.
+
+#### Способ 1: `companion object`
+
+```kotlin
+class MyTest {
+
+    @Test
+    fun someTest() {
+        println("Running test")
+    }
+
+    companion object {
+
+        @BeforeAll
+        @JvmStatic // ← обязательно! превращает в static для JVM
+        fun setup() {
+            println("Before ALL tests")
+        }
+
+        @AfterAll
+        @JvmStatic
+        fun teardown() {
+            println("After ALL tests")
+        }
+    }
+}
+```
+
+`@JvmStatic` говорит компилятору сгенерировать настоящий `static`-метод — именно этого ожидает JUnit 5.
+
+#### Способ 2: `@TestInstance(Lifecycle.PER_CLASS)`
+
+По умолчанию JUnit создаёт новый экземпляр класса для каждого теста. Если переключить на `PER_CLASS`, экземпляр один — и `@BeforeAll` и `@AfterAll` можно вешать на обычный метод.
+
+```kotlin
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
+class MyTest {
+
+    @BeforeAll
+    fun setup() { // ← никакого companion object, никакого @JvmStatic
+        println("Before ALL tests")
+    }
+
+    @AfterAll
+    fun teardown() {
+        println("After ALL tests")
+    }
+
+    @Test
+    fun someTest() {
+        println("Running test")
+    }
+}
 ```
