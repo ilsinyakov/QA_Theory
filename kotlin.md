@@ -14,6 +14,13 @@
   - [Выведение типа](#выведение-типа)
   - [Статическая типизация](#статическая-типизация)
   - [Тип Any](#тип-any)
+  - [Null Safety](#null-safety)
+    - [Оператор `?.` — Safe Call](#оператор---safe-call)
+    - [Оператор ?: — Elvis (аналог тернарного для null)](#оператор---elvis-аналог-тернарного-для-null)
+    - [Оператор `!!` — Non-null Assertion](#оператор---non-null-assertion)
+    - [Smart Cast — умные приведения типов](#smart-cast--умные-приведения-типов)
+    - [`let` — стандартная идиома для работы с nullable](#let--стандартная-идиома-для-работы-с-nullable)
+    - [Платформенные типы T! — мост с Java](#платформенные-типы-t--мост-с-java)
 - [Companion-объекты](#companion-объекты)
 - [JUnit5 в Kotlin](#junit5-в-kotlin)
   - [Хуки `@BeforeAll` и `@AfterAll`](#хуки-beforeall-и-afterall)
@@ -230,6 +237,150 @@ var name: Any = "Tom"
 println(name)   // Tom
 name = 6758
 println(name)   // 6758
+```
+
+### Null Safety
+
+В **Java** любая переменная-объект может быть `null`, и компилятор тебя не предупредит.  
+Т.е. NullPointerException возникнет в **runtime**
+
+```java
+String s = null;
+s.length(); // NPE в runtime — компилятор молчит
+```
+
+**Kotlin** переносит проверку на **compile time**. Для этого все типы делятся на:
+
+- ***Non-nullable*** — `null` сюда НЕ войдёт
+- ***Nullable*** — может быть `null`
+
+```kotlin
+var a: String  = "hello"   // Non-nullable — null сюда НЕ войдёт
+var b: String? = "hello"   // Nullable — может быть null
+
+a = null   // ❌ Compile error
+b = null   // ✅ OK
+```
+
+| Синтаксис | Название           | Что делает                                      |
+|-----------|--------------------|-------------------------------------------------|
+| `String`  | Non-nullable       | Никогда не null, гарантия компилятора           |
+| `String?` | Nullable           | Может быть null                                 |
+| `?.`      | Safe call          | Вызов если не null, иначе null                  |
+| `?:`      | Elvis              | Значение по умолчанию если null                 |
+| `!!`      | Non-null assertion | Принудительный NPE если null                    |
+| `T!`      | Platform type      | Тип из Java, неизвестная nullable-семантика     |
+
+#### Оператор `?.` — Safe Call
+
+Вызов метода/поля только если объект не `null`, иначе возвращает `null`.
+
+```kotlin
+val b: String? = "hello"
+val len: Int? = b?.length   // Если b == null → len == null
+                             // Если b != null → len == 5
+```
+
+#### Оператор ?: — Elvis (аналог тернарного для null)
+
+```kotlin
+val len: Int = b?.length ?: 0
+// Если b?.length == null → берём 0
+// Если b?.length != null → берём его значение
+```
+
+Можно бросать исключение через Elvis:
+
+```kotlin
+val name = user?.name ?: throw IllegalArgumentException("User is null")
+```
+
+Можно делать ранний return:
+
+```kotlin
+fun process(user: User?) {
+    val name = user?.name ?: return  // выходим из функции если null
+    println(name)
+}
+```
+
+#### Оператор `!!` — Non-null Assertion
+
+Если null — пусть будет NPE:
+
+```kotlin
+val b: String? = "hello"
+val len: Int = b!!.length   // Если b == null → NullPointerException
+```
+
+Это осознанный отказ от null-safety. Используется редко — когда ты знаешь, что null невозможен, но компилятор не может это доказать.
+
+#### Smart Cast — умные приведения типов
+
+```kotlin
+val b: String? = "hello"
+
+if (b != null) {
+    println(b.length)  // ✅ Здесь b — уже String, не String?
+}
+
+// Тоже работает:
+if (b == null) return
+println(b.length)  // ✅ До этой строки null не дошёл
+```
+
+Smart cast не работает если переменная может измениться между проверкой и использованием:
+
+```kotlin
+var b: String? = "hello"
+if (b != null) {
+    // другой поток мог изменить b
+    println(b.length)  // ❌ Compile error для var — компилятор не уверен
+}
+```
+
+#### `let` — стандартная идиома для работы с nullable
+
+```kotlin
+val b: String? = "hello"
+
+b?.let { str ->   // str — это уже String (non-nullable) внутри блока
+    println(str.length)
+    println(str.uppercase())
+}
+// Если b == null — блок не выполнится
+```
+
+#### Платформенные типы T! — мост с Java
+
+Когда Kotlin вызывает Java-код, он не знает, может ли вернуться `null`. Такие типы называются платформенными и обозначаются `T!`:
+
+```java
+// Java:
+public String getName() { return null; }  // может вернуть null
+```
+
+```kotlin
+// Kotlin:
+val name = javaObject.getName()  // тип: String! (платформенный)
+```
+
+`String!` означает — «может быть как `String`, так и `String?`, решай сам».  
+Компилятор разрешит и то и то:
+
+```kotlin
+val a: String  = javaObject.getName()  // OK, но рискованно — NPE возможен
+val b: String? = javaObject.getName()  // OK, безопасно
+```
+
+Для работы с Null Safety в Java можно использовать аннотации:
+
+```java
+@Nullable
+public String getName() { ... }  // → String? в Kotlin
+
+@NotNull
+public String getName() { ... }  // → String  в Kotlin
 ```
 
 ## Companion-объекты
