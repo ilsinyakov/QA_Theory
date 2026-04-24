@@ -349,6 +349,14 @@ git commit -m "Ваш коммит"
 
 `cat ~/.git-credentials` - просмотреть, что хранится
 
+При изменении пароля нужно удалить старое хранилище:
+
+```bash
+git config --global --unset credential.helper
+git config --global credential.helper store
+rm ~/.git-credentials
+```
+
 ### Добавление удаленного репозитория (remote add)
 
 Если удаленного репозитория еще нет, то его можно добавить:  
