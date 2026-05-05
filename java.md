@@ -1252,3 +1252,285 @@ Spring Boot собирает конфигурацию из множества и
 
 - property `spring.datasource.url` → env var `SPRING_DATASOURCE_URL`
 - property `app.somethingValue` → env var `APP_SOMETHING_VALUE`
+
+## Lombok
+
+**Lombok** - это библиотека Java, предоставляющая ряд аннотаций, позволяющих уменьшить количество повторяющегося и шаблонного кода.
+
+Lombok автоматически сгенерирует для Java байт-код, который вставляет в файлы .class, необходимый для реализации желаемого поведения, в зависимости от используемых вами аннотаций.
+
+### `@Data`
+
+Объединяет в себе несколько аннотаций:
+
+| Аннотация                  | Что делает                                    |
+|----------------------------|-----------------------------------------------|
+| `@Getter`                  | Геттеры для всех полей                        |
+| `@Setter`                  | Сеттеры для всех **не-final** полей           |
+| `@ToString`                | `toString()` на основе всех полей             |
+| `@EqualsAndHashCode`       | `equals()` и `hashCode()` на основе всех полей|
+| `@RequiredArgsConstructor` | Конструктор для `final` / `@NonNull` полей    |
+
+#### Кастомизация `@Data`
+
+**Исключить поле из** `equals()`/`hashCode()`/`toString()`:
+
+```java
+@EqualsAndHashCode.Exclude
+@ToString.Exclude
+private String password;
+```
+
+**Убрать сеттер у конкретного поля:**
+
+```java
+@Setter(AccessLevel.NONE)
+private String internalCode;
+```
+
+**Добавить конструктор со всеми аргументами:**
+
+```java
+@Data
+@AllArgsConstructor
+public class User { ... }
+```
+
+#### Особенности `@Data`
+
+- **Наследование** — `@EqualsAndHashCode` по умолчанию не вызывает `super`. Для подклассов используется `@EqualsAndHashCode(callSuper = true)`.
+- **JPA-сущности** — `@Data` не рекомендуется для `@Entity`. Двунаправленные связи могут вызвать бесконечную рекурсию в `toString()`/`hashCode()`.
+
+### `@Value`
+
+`@Value` — иммутабельный аналог `@Data`. Все поля становятся `private final`, класс становится `final`, сеттеры не генерируются.
+
+Объединяет в себе несколько аннотаций:
+
+| Аннотация                                      | Что делает                                      |
+|------------------------------------------------|-------------------------------------------------|
+| `@Getter`                                      | Геттеры для всех полей                          |
+| `@FieldDefaults(makeFinal=true, level=PRIVATE)`| Все поля становятся `private final`             |
+| `@ToString`                                    | `toString()` на основе всех полей               |
+| `@EqualsAndHashCode`                           | `equals()` и `hashCode()` на основе всех полей  |
+| `@AllArgsConstructor`                          | Конструктор со всеми полями                     |
+
+#### Кастомизация `@Value`
+
+**Сделать одно поле не-final (исключение из правила):**
+
+```java
+@NonFinal
+int retryCount;
+```
+
+**Сделать одно поле private-package:**
+
+```java
+@PackagePrivate
+double x;
+```
+
+**Добавить статический фабричный метод вместо конструктора:**
+
+```java
+@Value
+@RequiredArgsConstructor(staticName = "of")
+public class Money {
+    long amount;
+    String currency;
+}
+
+// Использование:
+Money price = Money.of(100, "RUB");
+```
+
+#### `@Value` vs `@Data`
+
+|               | `@Value`                            | `@Data`                            |
+|---------------|-------------------------------------|------------------------------------|
+| Поля          | Иммутабельные (все `private final`) | Мутабельные (есть сеттеры)         |
+| Класс         | `final` (нельзя наследовать)        | Можно наследовать                  |
+| Конструктор   | `@AllArgsConstructor`               | `@RequiredArgsConstructor`         |
+| Сеттеры       | Нет                                 | Есть для не-`final` полей          |
+| Применение    | Неизменяемые объекты-значения, DTO  | Обычные мутабельные POJO           |
+
+### `@With`
+
+`@With` — аннотация для создания **копии** иммутабельного объекта с одним изменённым полем. Вместо сеттера генерируется метод `withFieldName(newValue)`, который возвращает **новый экземпляр** объекта.
+
+Обычно используется вмести с `@Value`.
+
+Для каждого поля с аннотацией `@With` (или для всех полей, если аннотация на классе) генерируется метод вида:
+
+```java
+public ClassName withFieldName(FieldType newValue) {
+    return this.fieldName == newValue ? this : new ClassName(..., newValue, ...);
+}
+```
+
+#### Уровень доступа для `@With`
+
+По умолчанию генерируется `public` метод. Можно изменить:
+
+```java
+@With(AccessLevel.PROTECTED)
+String name;
+```
+
+| Уровень     | Значение                              |
+|-------------|---------------------------------------|
+| `PUBLIC`    | Доступен всем (по умолчанию)          |
+| `PROTECTED` | Только подклассам и пакету            |
+| `PACKAGE`   | Только внутри пакета                  |
+| `PRIVATE`   | Только внутри класса                  |
+| `NONE`      | Метод не генерируется                 |
+
+#### Цепочка вызовов для `@With`
+
+`@With` удобен для построения изменённых копий через цепочку:
+
+```java
+Config config = new Config("localhost", 8080, false);
+
+Config production = config
+    .withHost("prod.example.com")
+    .withPort(443)
+    .withSsl(true);
+```
+
+#### `@With` vs `@Setter`
+
+|                      | `@With`                  | `@Setter`                    |
+|----------------------|--------------------------|------------------------------|
+| Возвращает           | Новый объект (копию)     | `void`                       |
+| Исходный объект      | Не изменяется            | Изменяется                   |
+| Подходит для         | Иммутабельных классов    | Мутабельных классов          |
+| Потокобезопасность   | Да                       | Нет (без синхронизации)      |
+
+### @Builder
+
+`@Builder` — аннотация для реализации паттерна **Builder**. Позволяет создавать объекты через цепочку вызовов вместо громоздких конструкторов.
+
+Генерирует:
+
+| Элемент                                       | Описание                                          |
+|-----------------------------------------------|---------------------------------------------------|
+| Статический метод `builder()`                 | Точка входа — создаёт экземпляр билдера           |
+| Внутренний класс `ClassName.ClassNameBuilder` | Сам билдер со всеми полями                        |
+| Методы-сеттеры билдера                        | По одному на каждое поле (возвращают `this`)      |
+| Метод `build()`                               | Создаёт финальный объект                          |
+| `toString()` на билдере                       | Для отладки состояния билдера                     |
+
+#### Значения по умолчанию — `@Builder.Default`
+
+Без `@Builder.Default` незаполненные поля получают `null` / `0`. Чтобы задать дефолт:
+
+```java
+@Value
+@Builder
+public class Config {
+    String host;
+
+    @Builder.Default
+    int port = 8080;
+
+    @Builder.Default
+    boolean ssl = false;
+
+    @Builder.Default
+    List<String> tags = new ArrayList<>();
+}
+
+// Использование:
+Config config = Config.builder()
+    .host("localhost")
+    .build();
+// port = 8080, ssl = false, tags = []
+```
+
+#### `toBuilder()` — создание копии с изменениями
+
+Аналог `@With`, но для всего объекта сразу:
+
+```java
+@Value
+@Builder(toBuilder = true)
+public class User {
+    Long id;
+    String name;
+    String email;
+}
+
+User original  = User.builder()
+    .id(1L)
+    .name("Ivan")
+    .email("ivan@mail.ru")
+    .build();
+User modified  = original.toBuilder()
+    .name("Pit")
+    .build();
+// original — не изменился
+// modified — User(1, "Pit", "ivan@mail.ru")
+```
+
+#### `@Singular` — для коллекций
+
+Позволяет добавлять элементы в коллекцию по одному:
+
+```java
+@Value
+@Builder
+public class Order {
+    Long id;
+
+    @Singular
+    List<String> items;
+}
+
+Order order = Order.builder()
+    .id(1L)
+    .item("Laptop")   // добавляет один элемент
+    .item("Mouse")
+    .items(List.of("Keyboard", "Monitor"))  // добавляет список
+    .build();
+// items = ["Laptop", "Mouse", "Keyboard", "Monitor"]
+```
+
+#### `@Builder` на конструкторе
+
+Можно применять не только к классу:
+
+```java
+public class User {
+    private Long id;
+    private String name;
+    private String role;
+
+    @Builder
+    public User(Long id, String name) {
+        this.id = id;
+        this.name = name;
+        this.role = "USER"; // всегда задаётся явно
+    }
+}
+```
+
+#### Валидация в `build()`
+
+Lombok не генерирует валидацию. Чтобы добавить проверки, нужно переопределить метод `build()` вручную внутри билдера:
+
+```java
+@Builder
+public class User {
+    String name;
+    int age;
+
+    public static class UserBuilder {
+        public User build() {
+            if (age < 0) throw new IllegalArgumentException("Age cannot be negative");
+            return new User(name, age);
+        }
+    }
+}
+```
