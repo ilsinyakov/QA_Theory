@@ -71,6 +71,29 @@
   - [Spring Boot](#spring-boot)
     - [Контроллер в Spring Boot](#контроллер-в-spring-boot)
     - [ENVIRONMENT в Spring Boot](#environment-в-spring-boot)
+- [Lombok](#lombok)
+  - [`@Data`](#data)
+    - [Кастомизация `@Data`](#кастомизация-data)
+    - [Особенности `@Data`](#особенности-data)
+  - [`@Value`](#value)
+    - [Кастомизация `@Value`](#кастомизация-value)
+    - [`@Value` vs `@Data`](#value-vs-data)
+  - [`@With`](#with)
+    - [Уровень доступа для `@With`](#уровень-доступа-для-with)
+    - [Цепочка вызовов для `@With`](#цепочка-вызовов-для-with)
+    - [`@With` vs `@Setter`](#with-vs-setter)
+  - [@Builder](#builder)
+    - [Значения по умолчанию — `@Builder.Default`](#значения-по-умолчанию--builderdefault)
+    - [`toBuilder()` — создание копии с изменениями](#tobuilder--создание-копии-с-изменениями)
+    - [`@Singular` — для коллекций](#singular--для-коллекций)
+    - [`@Builder` на конструкторе](#builder-на-конструкторе)
+    - [Валидация в `build()`](#валидация-в-build)
+  - [Конструкторы Lombok](#конструкторы-lombok)
+    - [`@NoArgsConstructor`](#noargsconstructor)
+    - [`@RequiredArgsConstructor`](#requiredargsconstructor)
+    - [`@AllArgsConstructor`](#allargsconstructor)
+    - [Параметры конструкторов](#параметры-конструкторов)
+    - [Типовые комбинации](#типовые-комбинации)
 
 ## JVM / JRE / JDK
 
@@ -1532,5 +1555,149 @@ public class User {
             return new User(name, age);
         }
     }
+}
+```
+
+### Конструкторы Lombok
+
+| Аннотация                  | Какие поля в параметрах    | Типичное применение            |
+|----------------------------|----------------------------|--------------------------------|
+| `@NoArgsConstructor`       | Никаких                    | JPA, Jackson, Spring           |
+| `@RequiredArgsConstructor` | `final` + `@NonNull` поля  | Инъекция зависимостей в Spring |
+| `@AllArgsConstructor`      | Все поля по порядку        | Совместно с `@Builder`, тесты  |
+
+#### `@NoArgsConstructor`
+
+Генерирует конструктор **без аргументов**.
+
+```java
+@NoArgsConstructor
+public class User {
+    private Long id;
+    private String name;
+}
+
+// Результат:
+new User();
+```
+
+Если есть `final`-поля — нужен `force = true`, иначе не скомпилируется:
+
+```java
+@NoArgsConstructor(force = true)
+public class User {
+    private final Long id;    // будет null
+    private final String name; // будет null
+}
+```
+
+#### `@RequiredArgsConstructor`
+
+Генерирует конструктор только для `final` и `@NonNull` полей.
+
+```java
+@RequiredArgsConstructor
+public class User {
+    private final Long id;         // ← попадёт в конструктор
+    
+    @NonNull
+    private String name;           // ← попадёт в конструктор
+
+    private String email;          // ← не попадёт (не final, не @NonNull)
+}
+
+// Результат:
+new User(1L, "Ivan");
+```
+
+Главное применение — инъекция зависимостей в **Spring** (вместо `@Autowired` на поле):
+
+```java
+@Service
+@RequiredArgsConstructor
+public class UserService {
+    private final UserRepository userRepository;  // Spring сам передаст зависимость
+    private final EmailService emailService;
+}
+```
+
+#### `@AllArgsConstructor`
+
+Генерирует конструктор со **всеми полями** класса по порядку объявления.
+
+```java
+@AllArgsConstructor
+public class User {
+    private Long id;
+    private String name;
+    private String email;
+}
+
+// Результат:
+new User(1L, "Ivan", "ivan@mail.ru");
+```
+
+#### Параметры конструкторов
+
+`access` — уровень доступа конструктора:
+
+```java
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+```
+
+`staticName` — генерирует приватный конструктор + публичный статический фабричный метод:
+
+```java
+@RequiredArgsConstructor(staticName = "of")
+public class User {
+    private final Long id;
+    private final String name;
+}
+
+// Использование:
+User user = User.of(1L, "Ivan");  // вместо new User(1L, "Ivan")
+```
+
+#### Типовые комбинации
+
+**JPA-сущность:**
+
+```java
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor          // обязателен для JPA
+@AllArgsConstructor         // удобен для тестов
+public class User {
+    @Id
+    private Long id;
+    private String name;
+}
+```
+
+**JPA + Builder:**
+
+```java
+@Entity
+@Getter
+@Builder
+@NoArgsConstructor          // обязателен для JPA
+@AllArgsConstructor         // обязателен для @Builder
+public class User {
+    @Id
+    private Long id;
+    private String name;
+}
+```
+
+**Spring-сервис (рекомендуемый способ инъекции):**
+
+```java
+@Service
+@RequiredArgsConstructor    // Spring увидит единственный конструктор и заинжектит зависимости
+public class UserService {
+    private final UserRepository userRepository;
+    private final EmailService emailService;
 }
 ```
