@@ -45,6 +45,9 @@
 - [Соединения (JOIN)](#соединения-join)
 - [Предложение UNION](#предложение-union)
 - [Предложение UNION ALL](#предложение-union-all)
+- [CTE (Common Table Expressions)](#cte-common-table-expressions)
+  - [Синтаксис нескольких CTE](#синтаксис-нескольких-cte)
+  - [CTE в INSERT / UPDATE / DELETE (модифицирующие CTE)](#cte-в-insert--update--delete-модифицирующие-cte)
 - [Синонимы (алиасы)](#синонимы-алиасы)
 - [Индексы](#индексы)
   - [Создание индексов](#создание-индексов)
@@ -82,6 +85,14 @@
   - [В интерактивном режиме](#в-интерактивном-режиме)
   - [В командной строке](#в-командной-строке)
   - [Утилиты (программы) PostgreSQL](#утилиты-программы-postgresql)
+  - [Работа с временем и датами в PostgreSQL](#работа-с-временем-и-датами-в-postgresql)
+    - [Типы данных для времени](#типы-данных-для-времени)
+    - [Получение текущей даты и времени](#получение-текущей-даты-и-времени)
+    - [Извлечение частей даты/времени](#извлечение-частей-датывремени)
+    - [Арифметика с датами и интервалами](#арифметика-с-датами-и-интервалами)
+    - [Округление и усечение временных меток](#округление-и-усечение-временных-меток)
+    - [Форматирование и преобразование](#форматирование-и-преобразование)
+    - [Работа с часовыми поясами](#работа-с-часовыми-поясами)
 
 ## Основные понятия
 
@@ -941,6 +952,120 @@ SELECT col1, col2, ...colN
 FROM table2
 [WHERE condition];
 ```
+
+## CTE (Common Table Expressions)
+
+**CTE (Common Table Expression, обобщённое табличное выражение)** — это временный именованный подзапрос, который можно использовать внутри одного основного SQL-оператора (`SELECT`, `INSERT`, `UPDATE`, `DELETE`).
+
+```sql
+WITH имя_cte AS (
+    SELECT ...
+)
+
+SELECT ...
+FROM имя_ctе
+WHERE ...;
+```
+
+Пример.  
+**Задача**: найти сотрудников, чья зарплата выше средней по их отделу.
+
+```sql
+WITH avg_salary_per_dept AS (
+    SELECT department_id,
+           AVG(salary) AS avg_salary
+    FROM employees
+    GROUP BY department_id
+)
+
+SELECT e.name,
+       e.salary,
+       d.avg_salary
+FROM employees e
+JOIN avg_salary_per_dept d ON e.department_id = d.department_id
+WHERE e.salary > d.avg_salary;
+```
+
+CTE `avg_salary_per_dept` считает среднюю зарплату для каждого отдела, а основной запрос выбирает тех, кто выше среднего.
+
+### Синтаксис нескольких CTE
+
+Можно объявить любое количество CTE через запятую. Ключевое слово `WITH` пишется только один раз:
+
+```sql
+WITH
+    cte1 AS ( SELECT ... ),
+    cte2 AS ( SELECT ... ),
+    cte3 AS ( SELECT ... )
+SELECT ...
+FROM cte1
+JOIN cte2 ON ...
+JOIN cte3 ON ...
+WHERE ...;
+```
+
+Важно: последующие CTE могут ссылаться на предыдущие (слева направо), но не наоборот:
+
+```sql
+WITH
+    first_cte AS ( SELECT 1 AS id ),
+    second_cte AS ( SELECT id * 10 AS val FROM first_cte )
+SELECT * FROM second_cte;  -- ok
+```
+
+Пример.  
+**Задача**: получить топ-3 клиентов по сумме оплаченных заказов за последний месяц, вместе с их общим количеством заказов.
+
+```sql
+WITH
+    last_month_orders AS (
+        SELECT customer_id, order_id, total_amount
+        FROM orders
+        WHERE order_date >= date_trunc('month', CURRENT_DATE - INTERVAL '1 month')
+          AND order_date <  date_trunc('month', CURRENT_DATE)
+          AND status = 'paid'
+    ),
+    customer_stats AS (
+        SELECT customer_id,
+               SUM(total_amount) AS total_spent,
+               COUNT(order_id)   AS order_count
+        FROM last_month_orders
+        GROUP BY customer_id
+    )
+SELECT c.name,
+       cs.total_spent,
+       cs.order_count
+FROM customer_stats cs
+JOIN customers c ON cs.customer_id = c.customer_id
+ORDER BY cs.total_spent DESC
+LIMIT 3;
+```
+
+Здесь:
+
+`last_month_orders` — фильтрует заказы за прошлый календарный месяц.
+
+`customer_stats` — использует результат `last_month_orders` для агрегации по клиентам.
+
+Основной `SELECT` джойнит таблицу customers и выдаёт лидеров.
+
+### CTE в INSERT / UPDATE / DELETE (модифицирующие CTE)
+
+CTE можно использовать не только для чтения, но и для изменения данных:
+
+```sql
+WITH deleted_orders AS (
+    DELETE FROM orders
+    WHERE status = 'cancelled'
+    RETURNING customer_id, total_amount
+)
+INSERT INTO customer_credits (customer_id, credit_amount)
+SELECT customer_id, SUM(total_amount) * 0.1
+FROM deleted_orders
+GROUP BY customer_id;
+```
+
+Этот запрос удаляет отменённые заказы и зачисляет клиентам бонус в размере 10% от суммы удалённых заказов.
 
 ## Синонимы (алиасы)
 
