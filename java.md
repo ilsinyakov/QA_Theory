@@ -88,12 +88,15 @@
     - [`@Singular` — для коллекций](#singular--для-коллекций)
     - [`@Builder` на конструкторе](#builder-на-конструкторе)
     - [Валидация в `build()`](#валидация-в-build)
+  - [`@UtilityClass`](#utilityclass)
   - [Конструкторы Lombok](#конструкторы-lombok)
     - [`@NoArgsConstructor`](#noargsconstructor)
     - [`@RequiredArgsConstructor`](#requiredargsconstructor)
     - [`@AllArgsConstructor`](#allargsconstructor)
     - [Параметры конструкторов](#параметры-конструкторов)
     - [Типовые комбинации](#типовые-комбинации)
+  - [`@Slf4j`](#slf4j)
+    - [Кастомное имя топика](#кастомное-имя-топика)
 
 ## JVM / JRE / JDK
 
@@ -1709,5 +1712,28 @@ public class User {
 public class UserService {
     private final UserRepository userRepository;
     private final EmailService emailService;
+}
+```
+
+### `@Slf4j`
+
+`@Slf4j` — аннотация для автоматической генерации логгера. Избавляет от необходимости вручную объявлять поле `log`.
+
+Что генерирует:
+
+```java
+private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ClassName.class);
+```
+
+#### Кастомное имя топика
+
+По умолчанию имя логгера — имя класса. Можно переопределить:
+
+```java
+@Slf4j(topic = "audit-log")
+public class UserService {
+    public void createUser(String name) {
+        log.info("User created: {}", name); // логгер будет называться "audit-log"
+    }
 }
 ```
