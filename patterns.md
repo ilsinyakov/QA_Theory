@@ -166,13 +166,13 @@
 
 Оба объекта имеют общий интерфейс, поэтому для пользователя нет никакой разницы, с каким объектом работать — чистым или обёрнутым. Вы можете использовать несколько разных обёрток одновременно — результат будет иметь объединённое поведение всех обёрток сразу.
 
-![Notificator](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/decorator1.png?raw=true)
+![Notifier](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/decorator1.png?raw=true)
 
 В примере с оповещениями мы оставим в базовом классе простую отправку по электронной почте, а расширенные способы отправки сделаем декораторами.
 
 Сторонняя программа, выступающая клиентом, во время первичной настройки будет заворачивать объект оповещений в те обёртки, которые соответствуют желаемому способу оповещения.
 
-![Notificator2](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/decorator2.png?raw=true)
+![Notifier2](https://github.com/ilsinyakov/QA_Theory/blob/main/Pictures/decorator2.png?raw=true)
 
 ### Фасад (Facade)
 
