@@ -790,7 +790,15 @@ WHERE status = 'inactive';
 
 ```sql
 SELECT col1, col2, ...colN FROM tableName
-WHERE colName REGEXP регулярное выражение;
+WHERE colName REGEXP 'регулярное выражение';
+```
+
+В PostgreSQL такого оператора нет. Для проверки соответствия регулярному выражению используются операторы `~` (регистрозависимый) или `~*` (регистронезависимый).
+
+```sql
+-- PostgreSQL
+SELECT col1, col2, ...colN FROM tableName
+WHERE colName ~ 'регулярное выражение';
 ```
 
 В регулярное выражении могут использоваться следующие специальные символы:
