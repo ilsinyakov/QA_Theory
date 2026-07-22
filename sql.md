@@ -30,6 +30,10 @@
 - [Удаление таблицы](#удаление-таблицы)
 - [Добавление записей (строк)](#добавление-записей-строк)
 - [Выборка полей](#выборка-полей)
+  - [Оконные функции (Window Functions)](#оконные-функции-window-functions)
+    - [Ранжирующие функции](#ранжирующие-функции)
+    - [Функции смещения (доступа к соседним строкам)](#функции-смещения-доступа-к-соседним-строкам)
+    - [Агрегатные функции с OVER](#агрегатные-функции-с-over)
 - [Предложение WHERE](#предложение-where)
 - [Обновление полей](#обновление-полей)
 - [Удаление записей](#удаление-записей)
@@ -757,6 +761,102 @@ FROM tableName;
 
 Для выборки всех полей используется такой синтаксис:  
 `SELECT * FROM tableName;`
+
+### Оконные функции (Window Functions)
+
+**Оконные функции** — это инструмент SQL, который позволяет выполнять вычисления над набором строк, связанных с текущей строкой, не сворачивая результат в одну группу. В отличие от `GROUP BY`, оконные функции сохраняют все строки и добавляют к ним агрегированные или ранжированные значения.
+
+Синтаксис:
+
+```sql
+SELECT
+    column1,
+    column2,
+    window_function(...) OVER (
+        [PARTITION BY partition_expression]
+        [ORDER BY sort_expression]
+        [frame_definition]
+    ) AS alias
+FROM table_name;
+```
+
+`PARTITION BY` — делит строки на группы (партиции), внутри которых вычисляется функция. Если опущено, вся таблица считается одной партицией.
+
+`ORDER BY` — определяет порядок строк внутри партиции для функций, зависящих от порядка (ранжирование, смещения).
+
+`frame_definition` — определяет скользящее окно (например, `ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`), используется для агрегатов и некоторых других функций.
+
+#### Ранжирующие функции
+
+- `ROW_NUMBER()` — порядковый номер строки (уникальный в пределах партиции).
+- `RANK()` — ранг с пропусками (если есть одинаковые значения, пропускает следующие номера).
+- `DENSE_RANK()` — ранг без пропусков (одинаковые значения получают один ранг, следующий ранг на единицу больше).
+- `NTILE(n)` — разбивает строки на n примерно равных групп (корзин).
+
+```sql
+-- Ранжирование сотрудников по зарплате в каждом отделе
+SELECT
+    first_name,
+    last_name,
+    department,
+    salary,
+    ROW_NUMBER() OVER (PARTITION BY department ORDER BY salary DESC) AS rank_in_dept
+FROM employees;
+```
+
+#### Функции смещения (доступа к соседним строкам)
+
+- `LAG(column, offset, default)` — значение из предыдущей строки (на offset позиций назад).
+- `LEAD(column, offset, default)` — значение из следующей строки (на offset позиций вперёд).
+- `FIRST_VALUE(column)` — первое значение в окне (с учётом порядка).
+- `LAST_VALUE(column)` — последнее значение в окне (с учётом порядка).
+
+```sql
+-- Разница между текущей и предыдущей зарплатой
+SELECT
+    employee_id,
+    salary_date,
+    salary_amount,
+    LAG(salary_amount, 1, 0) OVER (PARTITION BY employee_id ORDER BY salary_date) AS prev_salary,
+    salary_amount - LAG(salary_amount, 1, 0) OVER (PARTITION BY employee_id ORDER BY salary_date) AS diff
+FROM salaries;
+```
+
+```sql
+-- Получение первой и последней зарплаты сотрудника
+SELECT
+    employee_id,
+    salary_date,
+    salary_amount,
+    FIRST_VALUE(salary_amount) OVER (PARTITION BY employee_id ORDER BY salary_date) AS first_salary,
+    LAST_VALUE(salary_amount) OVER (PARTITION BY employee_id ORDER BY salary_date
+        ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) AS last_salary
+FROM salaries;
+```
+
+**NB**: для `LAST_VALUE` нужно явно задать фрейм `ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING`, иначе по умолчанию окно заканчивается текущей строкой.
+
+#### Агрегатные функции с OVER
+
+Любая агрегатная функция (`COUNT`, `SUM`, `AVG`, `MIN`, `MAX` и др.) может быть использована как оконная. При этом она вычисляет агрегат в пределах окна (определённого `PARTITION BY` и фреймом), не сворачивая строки.
+
+```sql
+-- Скользящее среднее за 3 дня
+SELECT
+    date,
+    sales,
+    AVG(sales) OVER (ORDER BY date ROWS BETWEEN 2 PRECEDING AND CURRENT ROW) AS moving_avg
+FROM daily_sales;
+```
+
+```sql
+-- Накопительная сумма (кумулятивный итог)
+SELECT
+    order_date,
+    amount,
+    SUM(amount) OVER (ORDER BY order_date ROWS UNBOUNDED PRECEDING) AS cumulative_sum
+FROM orders;
+```
 
 ## Предложение WHERE
 
